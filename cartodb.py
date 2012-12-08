@@ -1,14 +1,16 @@
 import urllib2
 import urllib
+import json
+from cartodb_object import CartoDb_object
 
 try:
-    from settings import *
+  from settings import *
 except ImportError:
-    print "Warning: custom_settings could not be loaded"
-    pass
+  print "Warning: custom_settings could not be loaded"
+  pass
 
 class Cartodb:
-  api_key = pyCartodb_api _key
+  api_key = pyCartodb_api_key
   domain_name = pyCartodb_domain_name
 
   def __init__(self, domain_name):
@@ -69,6 +71,7 @@ class Cartodb:
 
 
   def at(self, db_name):
+    self.current_db = db_name
     self.params = [{"name":"db_name", "type": "SELECT", "value": db_name}]
     return self
 
@@ -79,9 +82,6 @@ class Cartodb:
   def add(self, col):
     self.params.append({"name":"column", "column": col})
     return self
-
-  def open(self):
-    return self._get(self.parseSQL())
 
   def field(self, value):
     self.params.append({"name":"field", "value":value})
@@ -95,8 +95,22 @@ class Cartodb:
     self.params.append({"name":"comp", "type": "big", "value": value})
     return self
 
-  def _get(self, sql):
+  def sql(self, sql):
     print self.urlRoot() + sql
     fetcher = urllib2.urlopen(self.urlRoot() + urllib.quote_plus(sql))
     result = fetcher.read()
     return result
+
+  def open(self):
+    response = self.sql(self.parseSQL())
+    return self.objectify(response)
+
+  def toObject(self, obj):
+    return CartoDb_object(self, **obj)
+
+  def objectify(self, jsonResponse):
+    carto_objects = []
+    responses = json.loads(jsonResponse)
+    for obj in responses['rows']:
+      carto_objects.append(self.toObject(obj))
+    return carto_objects
