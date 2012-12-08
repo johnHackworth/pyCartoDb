@@ -5,7 +5,7 @@ pyCartoDb is a small ORM for CartoDb. It allows you to read your table and conve
 
 Examples of use:
 
-[code]
+```python
   from cartodb import Cartodb
 
   # instantiate pyCartoDb with your cartodb's username
@@ -43,7 +43,3 @@ Examples of use:
   # we set some info and persist the data to db
   new_object.set('name', 'perico')
   new_object.save()
-
- 
-
-[/code]
