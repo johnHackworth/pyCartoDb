@@ -47,8 +47,12 @@ class CartoDb_object:
     return not "cartodb_id" in self.attributes
 
   def attr_to_save_text(self, key):
-    json_attr = json.dumps(self.attributes[key])
-    return json_attr.replace('"', "'")
+    if key == 'the_geom':
+      json_attr = "ST_SetSRID(ST_GeomFromGeoJSON('" + self.attributes[key] +"'), 4326)"
+      return json_attr #.replace('"', '\\"');
+    else:
+      json_attr = json.dumps(self.attributes[key])
+      return json_attr.replace('"', "'")
 
   def __init__(self, cartodb, **kwargs):
     self.cartodb = cartodb
